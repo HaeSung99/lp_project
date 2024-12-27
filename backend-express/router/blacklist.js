@@ -3,6 +3,16 @@ const router = express.Router();
 const db = require('../config/db'); // MySQL 연결 가져오기
 const authenticateToken = require('../middleware/authenticateToken'); // 인증 미들웨어 추가
 
+// NODE_ENV 설정 확인
+const isProduction = process.env.NODE_ENV === 'production';
+
+// 로그 출력 함수
+const log = (...args) => {
+  if (!isProduction) {
+    console.log(...args);
+  }
+};
+
 /**
  * @swagger
  * tags:
@@ -452,13 +462,12 @@ router.get('/', async (req, res) => {
       LEFT JOIN Cart c ON p.id = c.postId
       LEFT JOIN Dislike d ON p.id = d.postId
       GROUP BY p.id, p.title, p.author, p.views
-      
       ORDER BY ${orderByClause}
       LIMIT ? OFFSET ?
     `;
     const [rows] = await db.query(selectQuery, [limit, offset]);
 
-    console.log('블랙리스트 목록을 성공적으로 조회했습니다.');
+    log('블랙리스트 목록을 성공적으로 조회했습니다.');
     res.status(200).json({
       message: '블랙리스트 목록을 성공적으로 조회했습니다.',
       data: rows,
@@ -466,8 +475,8 @@ router.get('/', async (req, res) => {
       sort,
     });
   } catch (error) {
-    console.error('블랙리스트 조회 중 오류 발생:', error);
-    res.status(500).json({ message: '블랙리스트를 조회하지 못했습니다.', error });
+    console.error('블랙리스트 조회 중 오류 발생:', isProduction ? error.message : error);
+    res.status(500).json({ message: '블랙리스트를 조회하지 못했습니다.' });
   }
 });
 
@@ -502,8 +511,8 @@ router.post('/create', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     if (connection) await connection.rollback();
-    console.error('게시글과 블랙리스트를 작성하는 중 오류가 발생했습니다:', error);
-    res.status(500).json({ message: '게시글과 블랙리스트를 작성하지 못했습니다.', error });
+    console.error('게시글과 블랙리스트를 작성하는 중 오류가 발생했습니다:', isProduction ? error.message : error);
+    res.status(500).json({ message: '게시글과 블랙리스트를 작성하지 못했습니다.' });
   } finally {
     if (connection) await connection.release();
   }
@@ -535,19 +544,19 @@ router.post('/dislike/:id', authenticateToken, async (req, res) => {
 
     res.status(200).json({ message: '비추천이 성공적으로 처리되었습니다.' });
   } catch (error) {
-    res.status(500).json({ message: '비추천을 처리하지 못했습니다.', error });
+    console.error('비추천 처리 중 오류 발생:', isProduction ? error.message : error);
+    res.status(500).json({ message: '비추천을 처리하지 못했습니다.' });
   }
 });
 
 
 // 유저 장바구니 조회 (추천수, 조회수, 비추천수 제외)
 router.get('/cart', authenticateToken, async (req, res) => {
-  const { clientId } = req.user; // JWT에서 추출된 clientId
+  const { clientId } = req.user;
 
-  console.log('장바구니 조회 요청자 clientId:', clientId);
+  log('장바구니 조회 요청자 clientId:', clientId);
 
   if (!clientId) {
-    console.log('JWT 토큰에서 clientId를 확인할 수 없습니다.');
     return res.status(400).json({ message: 'JWT 토큰에서 clientId를 확인할 수 없습니다.' });
   }
 
@@ -563,76 +572,70 @@ router.get('/cart', authenticateToken, async (req, res) => {
     `;
     const [rows] = await db.query(selectCartQuery, [clientId]);
 
-    console.log(`clientId ${clientId}의 장바구니 데이터를 성공적으로 조회했습니다.`);
+    log(`clientId ${clientId}의 장바구니 데이터를 성공적으로 조회했습니다.`);
     res.status(200).json({
       message: '장바구니 데이터를 성공적으로 조회했습니다.',
       data: rows,
     });
   } catch (error) {
-    console.error('장바구니 데이터를 조회하는 중 오류가 발생했습니다:', error);
-    res.status(500).json({ message: '장바구니 데이터를 조회하지 못했습니다.', error });
+    console.error('장바구니 데이터를 조회하는 중 오류 발생:', isProduction ? error.message : error);
+    res.status(500).json({ message: '장바구니 데이터를 조회하지 못했습니다.' });
   }
 });
-
 
 // 블랙리스트 글 장바구니에 담기
 router.post('/cart/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params; // 글 번호
-  const { clientId } = req.user; // JWT에서 추출된 clientId
+  const { id } = req.params;
+  const { clientId } = req.user;
 
-  // 요청자의 clientId 출력
-  console.log('장바구니 추가 요청자 clientId:', clientId);
+  log('장바구니 추가 요청자 clientId:', clientId);
 
   if (!clientId) {
-    console.log('JWT 토큰에서 clientId를 확인할 수 없습니다.');
     return res.status(400).json({ message: 'JWT 토큰에서 clientId를 확인할 수 없습니다.' });
   }
 
   try {
-    // 장바구니에 추가
     const insertCartQuery = `INSERT INTO Cart (clientId, postId) VALUES (?, ?)`;
     await db.query(insertCartQuery, [clientId, id]);
 
-    console.log(`clientId ${clientId}가 글번호 ${id}를 장바구니에 추가했습니다.`);
+    log(`clientId ${clientId}가 글번호 ${id}를 장바구니에 추가했습니다.`);
     res.status(201).json({ message: '장바구니에 성공적으로 추가되었습니다.' });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      console.log(`clientId ${clientId}가 이미 글번호 ${id}를 장바구니에 추가했습니다.`);
+      log(`clientId ${clientId}가 이미 글번호 ${id}를 장바구니에 추가했습니다.`);
       return res.status(409).json({ message: '이미 장바구니에 추가된 게시글입니다.' });
     }
-    console.error('장바구니에 추가하는 중 오류가 발생했습니다:', error);
-    res.status(500).json({ message: '장바구니에 추가하지 못했습니다.', error });
+    console.error('장바구니에 추가하는 중 오류가 발생했습니다:', isProduction ? error.message : error);
+    res.status(500).json({ message: '장바구니에 추가하지 못했습니다.' });
   }
 });
 
+
 // 블랙리스트 글 장바구니에서 삭제
 router.delete('/cart/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params; // 글 번호
-  const { clientId } = req.user; // JWT에서 추출된 clientId
+  const { id } = req.params;
+  const { clientId } = req.user;
 
-  // 요청자의 clientId 출력
-  console.log('장바구니 삭제 요청자 clientId:', clientId);
+  log('장바구니 삭제 요청자 clientId:', clientId);
 
   if (!clientId) {
-    console.log('JWT 토큰에서 clientId를 확인할 수 없습니다.');
     return res.status(400).json({ message: 'JWT 토큰에서 clientId를 확인할 수 없습니다.' });
   }
 
   try {
-    // 장바구니에서 삭제
     const deleteCartQuery = `DELETE FROM Cart WHERE clientId = ? AND postId = ?`;
     const [result] = await db.query(deleteCartQuery, [clientId, id]);
 
     if (result.affectedRows === 0) {
-      console.log(`clientId ${clientId}가 장바구니에서 글번호 ${id}를 찾을 수 없습니다.`);
+      log(`clientId ${clientId}가 장바구니에서 글번호 ${id}를 찾을 수 없습니다.`);
       return res.status(404).json({ message: '장바구니에 해당 게시글이 없습니다.' });
     }
 
-    console.log(`clientId ${clientId}가 글번호 ${id}를 장바구니에서 삭제했습니다.`);
+    log(`clientId ${clientId}가 글번호 ${id}를 장바구니에서 삭제했습니다.`);
     res.status(200).json({ message: '장바구니에서 성공적으로 삭제되었습니다.' });
   } catch (error) {
-    console.error('장바구니에서 삭제하는 중 오류가 발생했습니다:', error);
-    res.status(500).json({ message: '장바구니에서 삭제하지 못했습니다.', error });
+    console.error('장바구니에서 삭제하는 중 오류가 발생했습니다:', isProduction ? error.message : error);
+    res.status(500).json({ message: '장바구니에서 삭제하지 못했습니다.' });
   }
 });
 

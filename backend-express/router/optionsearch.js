@@ -1,3 +1,22 @@
+// NODE_ENV 설정 확인
+const isProduction = process.env.NODE_ENV === 'production';
+
+// 로그 출력 함수
+const log = (...args) => {
+  if (!isProduction) {
+    console.log(...args);
+  }
+};
+
+// 오류 처리 함수
+const handleError = (error, context = '') => {
+  if (isProduction) {
+    console.error(`Error in ${context}:`, error.message);
+  } else {
+    console.error(`Error in ${context}:`, error);
+  }
+};
+
 // 옵션 목록 정의
 const 상특옵목록 = ["추가 피해 +1.60%", "공격력 +390"];
 const 상공용목록 = ["방어력 +250"];
@@ -35,7 +54,7 @@ function 악세옵션목록분석(response) {
                     }
                 }
             } catch (error) {
-                console.error(`Error parsing index ${index}:`, error.message);
+                handleError(error, `악세옵션목록분석 at index ${index}`);
             }
         }
 
@@ -43,6 +62,7 @@ function 악세옵션목록분석(response) {
         결과[옵션.이름] = count;
     }
 
+    log('악세옵션목록분석 결과:', 결과);
     return 결과;
 }
 
@@ -71,9 +91,10 @@ function 보석검사(response) {
             }
         });
     } catch (error) {
-        console.error("Error parsing gem data:", error.message);
+        handleError(error, '보석검사');
     }
 
+    log('보석검사 결과:', 결과);
     return 결과;
 }
 

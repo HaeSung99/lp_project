@@ -12,10 +12,6 @@ const 직업각인 = {
   function 직업각인함수(value) {
     return 직업각인[value] || "Unknown"; // 매핑되지 않은 값은 "Unknown"
   }
-
-  const 보석 = {
-    '10레벨 겁화의 보석' : '10겁'
-  }
   
   // 함수와 데이터를 내보내기
   module.exports = {

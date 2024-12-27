@@ -15,7 +15,7 @@ type ResponseToken = {
 };
 
 type ProcessInfo = {
-  image: Blob;
+  image: string;
 };
 
 export type { UserCredentials, RegisterInfo, LoginInfo, ResponseToken, ProcessInfo };
