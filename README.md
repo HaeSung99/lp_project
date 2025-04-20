@@ -59,7 +59,7 @@
 | **Backend**  | Express.js, Nest.js   |
 | **Database** | MySQL                 |
 | **OCR**      | PaddleOCR             |
-| **DevOps**   | Docker, AWS           |
+| **DevOps**   | Docker, AWS(EC2), Nginx           |
 | **Communication** | Notion, KakaoTalk |
 
 ---
@@ -94,11 +94,12 @@ docker-compose -f docker-compose.dev.yml up --build
 
 <div align="center">
 
-|  팀원  |   담당   |                                              프로필                                              |                                            주요 기여 및 핵심 역할                                           |
-| :----: | :------: | :----------------------------------------------------------------------------------------------: |  :----------------------------------------------------------------------------------------: |
-| 김도환 | Python | [<img src="https://github.com/ehghks021203.png" width="100px">](https://github.com/ehghks021203) | • PaddleOCR를 활용한 텍스트 추출 로직 구현 <br> • 화면 공유 기반 OCR 프로세스 개발 <br> • 프론트엔드 OCR 연동 구현
-| 최종현 | FrontEnd |    [<img src="https://github.com/elbyss.png" width="100px">](https://github.com/elbyss)    | • 프론트엔드 전반 개발 <br> • 프론트엔드 UI/UX 구현 및 스타일링
-| 김재찬 | BackEnd  |      [<img src="https://github.com/kjc6735.png" width="100px">](https://github.com/kjc6735)      | • 사용자 인증 및 보안 강화를 위한 로그인·로그아웃 기능 구현 (실효성 검토 후 미적용)
-| 성인석 | BackEnd  | [<img src="https://github.com/HaeSung99.png" width="100px">](https://github.com/HaeSung99) | • Dockerfile 작성 및 개발환경 구축 <br> • DB 구조 설계 및 API 연동 <br> • API 및 기능 명세서 작성 <br> • 페이지 구성 설계 및 OpenAPI를 활용한 데이터 재가공 <br> • 팀원 모집 및 프로젝트 관리 (노션 정리 포함)
+|  팀원  |   담당   |                                              프로필                                              | 사용 기술 |                                          주요 기여 및 핵심 역할                                           |
+| :----: | :------: | :----------------------------------------------------------------------------------------------: | :--------: | :---------------------------------------------------------------------------------------------------------: |
+| 김도환 |  Python  | [<img src="https://github.com/ehghks021203.png" width="100px">](https://github.com/ehghks021203) | Python (AI) | • PaddleOCR를 활용한 텍스트 추출 로직 구현 <br> • 화면 공유 기반 OCR 프로세스 개발 <br> • 프론트엔드 OCR 연동 구현 |
+| 최종현 | FrontEnd |    [<img src="https://github.com/elbyss.png" width="100px">](https://github.com/elbyss)    | Next.js | • 프론트엔드 전반 개발 <br> • 프론트엔드 UI/UX 구현 및 스타일링 |
+| 김재찬 | BackEnd  |      [<img src="https://github.com/kjc6735.png" width="100px">](https://github.com/kjc6735)      | NestJS | • 사용자 인증 및 보안 강화를 위한 로그인·로그아웃 기능 구현 (실효성 검토 후 미적용) |
+| 성인석 | BackEnd  | [<img src="https://github.com/HaeSung99.png" width="100px">](https://github.com/HaeSung99) | Node.js, Express.js, MySQL, Docker, AWS EC2, Nginx, Swagger, Git, Notion | • Dockerfile 작성 및 개발환경 구축 <br> • DB 구조 설계 및 API 연동 <br> • API 및 기능 명세서 작성 <br> • 페이지 구성 설계 및 OpenAPI를 활용한 데이터 재가공 <br> • 팀원 모집 및 프로젝트 관리 (노션 정리 포함) |
+
 
 </div>
